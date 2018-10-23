@@ -1,5 +1,5 @@
 # MIP Python training
-This is a collaborative initiative. There will be people driving it forward (AK, Cataldo, Mani etc.) by providing guidance, however its success is best achieved when everyone is involved into it. Please feel free to contribute with the exercise creations. If you see a topic that you fell is important and that is missing, please let us know.
+This is a collaborative initiative. There will be people driving it forward (AK, Cataldo, Mani etc.) by providing guidance, however its success is best achieved when everyone is involved into it. Please feel free to contribute with the exercise creations. If you see a topic that you feel is important and that is missing, please let us know.
  
 Let's make this great all together! 
 

@@ -4,6 +4,11 @@ Insert code here for all the transformations you are going to do
 import pandas as pd
 import numpy as np
 from sklearn import preprocessing
+#from scipy.stats import mstats
+from scipy.special import expit as sigmoid
+
+pd.set_option('display.width', 1000)
+
 
 # Read the data/flights.csv dataset into Python
 flights_df = pd.read_csv('../../data/flights.csv', sep=',', encoding='utf8')
@@ -49,7 +54,7 @@ updated_df.AIR_SYSTEM_DELAY.fillna(mean_AIR_SYSTEM_DELAY,inplace = True)
 
 # Create a column "has_A", which contains 1 if the airline name contains the letter 'A', 0 otherwise
 has_A = updated_df.apply(lambda row : 1 if 'A' in row.AIRLINE else 0, axis =1)
-print(has_A )
+#print(has_A )
 
 # Get a random sample of the rows in the data frame
 sample_row = updated_df.sample()
@@ -64,6 +69,49 @@ df_normalized = pd.DataFrame(x_scaled)
 
 # Binarise the column "ORIGIN_AIRPORT"
 binarize_ORIGIN_AIRPORT = pd.get_dummies(updated_df.ORIGIN_AIRPORT)
-print(binarize_ORIGIN_AIRPORT)
+#print(binarize_ORIGIN_AIRPORT)
+
+# replace NaN with mean for AIR_SYSTEM_DELAY
+updated_df.AIR_SYSTEM_DELAY.fillna(updated_df.AIR_SYSTEM_DELAY.mean(),inplace=True)
+#print(updated_df.AIR_SYSTEM_DELAY)
+
+#Remove outliers for 'DEPARTURE_DELAY' - remove rows in excess of 3 standard deviations from mean
+updated_df1 = updated_df[((updated_df.DEPARTURE_DELAY - updated_df.DEPARTURE_DELAY.mean()) / updated_df.DEPARTURE_DELAY.std()).abs() < 3]
+#print(updated_df)
+
+#Remove those rows where (for quantitative variables) any quant variable has value > 3std from mean
+#updated_df.dropna(axis = 1,how = 'any', inplace = True)
+#print(updated_df.describe())
+
+#numeric_col_names = updated_df.select_dtypes(include=[np.number]).columns
+#for num_column in numeric_cols:
+#    updated_df = updated_df[((updated_df[[num_column]] - updated_df[[num_column]].mean()) / updated_df[[num_column]].std()).abs() < 3]
+#print(updated_df.describe())
+
+#Winsorise all quantitative columns to a 95% upper and lower bound
+#numeric_cols_data = updated_df.select_dtypes([np.number])
+#winsorize_data = mstats.winsorize(numeric_cols_data, limits=[0.05, 0.05])
+#print(winsorize_data)
+
+#log transform the column 'DEPARTURE_DELAY' into a new column 'LOG_DEPARTURE_DELAY'
+updated_df['LOG_DEPARTURE_DELAY'] = np.log(updated_df['DEPARTURE_DELAY'])
+#print(updated_df)
+
+#Create a "Route" column by merging ORIGIN_AIRPORT and DESTINATION_AIRPORT
+updated_df['ROUTE'] = updated_df['ORIGIN_AIRPORT'].str.cat(updated_df['DESTINATION_AIRPORT'], sep = '->')
+#print(updated_df)
+
+#Normalise all the quantitative columns with standard normalisation
+
+#Apply the sigmoid function to the column 'ARRIVAL_DELAY'
+#print(sigmoid(updated_df.ARRIVAL_DELAY))
+
+#Perform a left join with the dataset airports.csv, on departure_airport
+airports_df = pd.read_csv('../../data/airports.csv', sep=',', encoding='utf8')
+df_merged = pd.merge(updated_df,airports_df,how='left',left_on='ORIGIN_AIRPORT', right_on='IATA_CODE')
+print(df_merged)
+#For each airline, the percentage delay for each dep_airport, over total delay across all dep_airport
 
 
+# Proportion of flights leaving before 12pm for each airlines
+#grouped_by_airlines = updated_df.groupby('AIRLINE')

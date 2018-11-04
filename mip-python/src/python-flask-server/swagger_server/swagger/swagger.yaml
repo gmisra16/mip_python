@@ -1,0 +1,100 @@
+---
+swagger: "2.0"
+info:
+  description: "This is a sample server Feature Store server.  You can find out more\
+    \ about. For this sample, you can use the api key `special-key` to test the authorization\
+    \ filters."
+  version: "1.0.0"
+  title: "Swagger Feature Store"
+  termsOfService: "http://google.com/"
+  contact:
+    email: "gmisra@sapient.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost"
+basePath: "/v1"
+tags:
+- name: "column"
+  description: "Top 20 column"
+  externalDocs:
+    description: "Find out more"
+    url: "http://localhost/"
+- name: "airlines"
+  description: "Access to airlines"
+schemes:
+- "https"
+- "http"
+paths:
+  /column:
+    get:
+      tags:
+      - "column"
+      summary: "Finds Column by name"
+      description: "Multiple column values can be provided with comma separated strings"
+      operationId: "get_columns"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "query"
+        description: "Name values that need to be considered for filter"
+        required: true
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "Invalid name value"
+      x-swagger-router-controller: "swagger_server.controllers.column_controller"
+    post:
+      tags:
+      - "column"
+      summary: "Add a new column"
+      description: ""
+      operationId: "add_column"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters: []
+      responses:
+        405:
+          description: "Invalid input"
+      x-swagger-router-controller: "swagger_server.controllers.column_controller"
+  /airlines:
+    get:
+      tags:
+      - "airlines"
+      summary: "Finds Airlines by name"
+      description: "Muliple namess can be provided with comma separated strings. Use\
+        \ name1, name2, name3 for testing."
+      operationId: "get_airlines"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "query"
+        description: "Names to filter by"
+        required: true
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "Invalid name value"
+      x-swagger-router-controller: "swagger_server.controllers.airlines_controller"
+definitions: {}
+externalDocs:
+  description: "Find out more about Airlines"
+  url: "http://localhost"

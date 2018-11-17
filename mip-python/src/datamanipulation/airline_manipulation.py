@@ -4,6 +4,10 @@ Insert code here for all the transformations you are going to do
 import pandas as pd
 import numpy as np
 from sklearn import preprocessing
+import pygeohash as gh
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
 #from scipy.stats import mstats
 from scipy.special import expit as sigmoid
 
@@ -109,9 +113,32 @@ updated_df['ROUTE'] = updated_df['ORIGIN_AIRPORT'].str.cat(updated_df['DESTINATI
 #Perform a left join with the dataset airports.csv, on departure_airport
 airports_df = pd.read_csv('../../data/airports.csv', sep=',', encoding='utf8')
 df_merged = pd.merge(updated_df,airports_df,how='left',left_on='ORIGIN_AIRPORT', right_on='IATA_CODE')
-print(df_merged)
+#print(df_merged)
+
 #For each airline, the percentage delay for each dep_airport, over total delay across all dep_airport
+dd_sum = flights_df.DEPARTURE_DELAY.sum()
+groupby_OA = flights_df.groupby(['ORIGIN_AIRPORT'])['DEPARTURE_DELAY'].sum().apply(lambda x: (x*100)/dd_sum)
+#print(groupby_OA)
 
+#Calculate the mean "Departure_delay" for each airline, over the whole dataset
+mean_DD = flights_df.groupby(['ORIGIN_AIRPORT'])['DEPARTURE_DELAY'].agg('mean')
+#print(mean_DD)
+#ABE=7.975610 173
 
-# Proportion of flights leaving before 12pm for each airlines
-#grouped_by_airlines = updated_df.groupby('AIRLINE')
+#The mean geohash of "londf['geohash']=df.apply(lambda x: gh.encode(x.latitude, x.longitude, precision=5), axis=1)gitude" and "latitude" for each airline
+airports_df['geohash']=airports_df.apply(lambda x: gh.encode(x.LATITUDE, x.LONGITUDE, precision=5), axis=1)
+#print(airports_df)
+
+#The percentage of flights leaving before 12pm, over total flights for each airline
+flights_b4_12 = flights_df.groupby('AIRLINE')['DEPARTURE_TIME'].apply(lambda x: (x<1200).sum()*100/x.sum())
+#print(flights_b4_12)
+
+#Do PCA to reduce the variables 'departure_delay' and 'arrival_delay' to a single component
+updated_df = updated_df[np.isfinite(updated_df['DEPARTURE_DELAY'])]
+updated_df = updated_df[np.isfinite(updated_df['ARRIVAL_DELAY'])]
+#print(updated_df)
+features = ['DEPARTURE_DELAY' , 'ARRIVAL_DELAY']
+x = StandardScaler().fit_transform(updated_df.loc[:, features].values)
+pca = PCA(n_components=1)
+principalComponents = pca.fit_transform(x)
+print(principalComponents)
